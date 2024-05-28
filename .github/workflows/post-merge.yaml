@@ -1,9 +1,7 @@
 name: Post Merge
 
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch: {}   # Allow for manual triggers
 
 jobs:
   generate:
