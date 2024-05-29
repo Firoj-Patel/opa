@@ -66,7 +66,9 @@ TELEMETRY_URL ?= #Default empty
 BUILD_HOSTNAME := $(shell ./build/get-build-hostname.sh)
 
 RELEASE_BUILD_IMAGE := golang:$(GOVERSION)-bullseye
-
+ifeq ($(GOARCH),s390x)
+RELEASE_BUILD_IMAGE := golang-wasmtime:$(GOVERSION)-bullseye
+endif
 RELEASE_DIR ?= _release/$(VERSION)
 
 ifneq (,$(TELEMETRY_URL))
@@ -199,7 +201,10 @@ deb:
 ######################################################
 
 .PHONY: wasm-test
-wasm-test: wasm-lib-test wasm-rego-test
+wasm-test:
+	sudo chown -R $(shell id -u):$(shell id -g) $(PWD)/.go
+	@$(MAKE) wasm-lib-test
+	@$(MAKE) wasm-rego-test
 
 .PHONY: wasm-lib-build
 wasm-lib-build:
@@ -270,7 +275,10 @@ ci-check-working-copy: generate
 ci-wasm: wasm-test
 
 .PHONY: ci-build-linux
-ci-build-linux: ensure-release-dir ensure-linux-toolchain
+ci-build-linux: ensure-release-dir
+ifneq ($(GOARCH),s390x)
+	@$(MAKE) ensure-linux-toolchain
+endif
 	@$(MAKE) build GOOS=linux
 	chmod +x opa_linux_$(GOARCH)
 	mv opa_linux_$(GOARCH) $(RELEASE_DIR)/
@@ -324,7 +332,23 @@ endif
 
 .PHONY: build-all-platforms
 build-all-platforms: ci-build-linux ci-build-linux-static ci-build-darwin ci-build-darwin-arm64-static ci-build-windows
-
+.PHONY: image-390x
+image-s390x:
+ 	$(DOCKER) build \
+ 		-t $(DOCKER_IMAGE):$(VERSION) \
+ 		--build-arg BASE=gcr.io/distroless/cc \
+ 		--build-arg BIN_DIR=$(RELEASE_DIR) \
+ 		--platform linux/s390x \
+ 		.
+ 
+.PHONY: image-390x-staic
+image-s390x-static:
+ 	$(DOCKER) build \
+ 		-t $(DOCKER_IMAGE):$(VERSION) \
+ 		--build-arg BASE=gcr.io/distroless/cc \
+ 		--build-arg BIN_DIR=$(RELEASE_DIR) \
+ 		--build-arg BIN_SUFFIX=_static \
+ 		--platform linux/s390x \
 .PHONY: image-quick
 image-quick: image-quick-$(GOARCH)
 
