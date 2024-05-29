@@ -20,7 +20,7 @@ jobs:
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
           sudo usermod -aG docker $USER && newgrp docker || true
-          dockerd &
+          sudo dockerd &
           # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
           AUTHOR=wasm-updater
           git config user.name ${AUTHOR}
