@@ -51,16 +51,7 @@ jobs:
               CAN_PUSH=0
           fi
 
-          if ./build/commit-cli-docs.sh; then
-            if [[ "${CAN_PUSH}" == "1" ]]; then
-              git push
-            else
-              echo "Previous commit was auto-generated -- Aborting!"
-              exit 1
-            fi
-          else
-            echo "No generated changes to push!"
-          fi
+  
 
   code-coverage:
     name: Update Go Test Coverage
@@ -69,7 +60,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-
+      - name: build go
+        run: make build
+        timeout-minutes: 30
       - name: Unit Test Golang
         run: make ci-go-test-coverage
         timeout-minutes: 30
