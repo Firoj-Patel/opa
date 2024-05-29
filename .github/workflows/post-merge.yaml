@@ -18,7 +18,14 @@ jobs:
         shell: bash
         run: |
           # Commit any changes and push as needed.
-
+          sudo apt-get update
+          sudo apt-get install -y curl vim wget
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo groupadd docker
+          sudo usermod -aG docker $USER
+          newgrp docker
+          dockerd &
           # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
           AUTHOR=wasm-updater
           git config user.name ${AUTHOR}
