@@ -42,7 +42,7 @@ jobs:
           
           # Build toolchain image
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/golang-wasmtime.Dockerfile
-          docker build -t golang-wasmtime:1.22.1-bullseye -f ./golang-wasmtime.Dockerfile .
+          sudo docker build -t golang-wasmtime:1.22.1-bullseye -f ./golang-wasmtime.Dockerfile .
   
 
   code-coverage:
