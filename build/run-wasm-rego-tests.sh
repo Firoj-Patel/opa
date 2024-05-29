@@ -16,6 +16,11 @@ ASSETS=${ASSETS:-"$PWD/test/wasm/assets"}
 VERBOSE=${VERBOSE:-"0"}
 TESTGEN_CONTAINER_NAME="opa-wasm-testgen-container"
 TESTRUN_CONTAINER_NAME="opa-wasm-testrun-container"
+ARCH=$(arch)
+NODE_IMAGE="node:14"
+if [ $ARCH = "s390x" ]; then
+    NODE_IMAGE="node:14-bullseye"
+fi
 
 function main {
     trap interrupt SIGINT SIGTERM
@@ -70,7 +75,7 @@ function run_testcases {
         --volumes-from $TESTGEN_CONTAINER_NAME:z \
         -e VERBOSE=$VERBOSE \
         -w /scratch \
-        node:14 \
+        $NODE_IMAGE \
         sh -c 'tar xzf \
             /src/.go/cache/testcases.tar.gz \
             && node test.js opa.wasm' &
