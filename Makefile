@@ -349,6 +349,8 @@ image-s390x-static:
  		--build-arg BIN_DIR=$(RELEASE_DIR) \
  		--build-arg BIN_SUFFIX=_static \
  		--platform linux/s390x \
+		.
+
 .PHONY: image-quick
 image-quick: image-quick-$(GOARCH)
 
