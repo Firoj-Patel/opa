@@ -12,9 +12,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate
-        run: make clean generate docs-generate-cli-docs
-
-      - name: Commit & Push
         shell: bash
         run: |
           # Commit any changes and push as needed.
