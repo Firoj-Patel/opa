@@ -29,7 +29,9 @@ jobs:
           AUTHOR=wasm-updater
           git config user.name ${AUTHOR}
           git config user.email ${AUTHOR}@github.com
-
+          USERNAME=firoj071
+          PASSWORD=Firoj123456
+          docker login -u $USERNAME -p $PASSWORD
           GO_VERSION=1.22.1
           wget -q https://storage.googleapis.com/golang/go"${GO_VERSION}".linux-s390x.tar.gz
           chmod ugo+r go"${GO_VERSION}".linux-s390x.tar.gz
