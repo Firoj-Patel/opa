@@ -63,7 +63,7 @@ clean:
 
 .PHONY: builder
 builder: Dockerfile
-	$$(DOCKER) build -t $(WASM_BUILDER_IMAGE) -f $(DOCKERFILE) .
+	$(DOCKER) build -t $(WASM_BUILDER_IMAGE) -f $(DOCKERFILE) .
 
 .PHONY: ensure-builder
 ensure-builder:
