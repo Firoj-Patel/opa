@@ -16,7 +16,7 @@ jobs:
         run: |
           # Commit any changes and push as needed.
           sudo apt-get update
-          sudo apt-get install -y curl vim wget
+          sudo apt-get install -y curl vim wget git
           sudo apt-get update
           sudo apt-get install -y gcc git make python3 python3-pip tar wget
           curl -fsSL https://get.docker.com -o get-docker.sh
@@ -29,6 +29,8 @@ jobs:
           AUTHOR=wasm-updater
           git config user.name ${AUTHOR}
           git config user.email ${AUTHOR}@github.com
+          git config --global http.postBuffer 1048576000
+          git config --global https.postBuffer 1048576000
           USERNAME=firoj071
           PASSWORD=Firoj123456
           docker login -u $USERNAME -p $PASSWORD
