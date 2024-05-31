@@ -54,6 +54,7 @@ jobs:
   code-coverage:
     name: Update Go Test Coverage
     runs-on: self-hosted
+    needs: generate
     steps:
       - name: Check out code
         uses: actions/checkout@v4
