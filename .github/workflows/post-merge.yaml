@@ -65,7 +65,7 @@ jobs:
         timeout-minutes: 30
 
   release-build:
-    name: Release Build (linux, windows)
+    name: Release Build 
     runs-on: self-hosted
     needs: generate
     steps:
@@ -74,9 +74,6 @@ jobs:
 
       - name: Build Linux s390x
         run: make ci-go-ci-build-linux
-        env:
-          TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
-
 
     
 
