@@ -74,7 +74,6 @@ jobs:
 
       - name: Build Linux s390x
         run: make ci-go-ci-build-linux
-        timeout-minutes: 30
         env:
           TELEMETRY_URL: ${{ secrets.TELEMETRY_URL }}
 
