@@ -15,7 +15,7 @@ jobs:
         shell: bash
         run: |
           # Commit any changes and push as needed.
-          cd $HOME
+          echo pwd
           sudo apt-get update
           sudo apt-get install -y curl vim wget git
           sudo apt-get update
