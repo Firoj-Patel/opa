@@ -34,9 +34,7 @@ jobs:
           git config user.email ${AUTHOR}@github.com
           git config --global http.postBuffer 1048576000
           git config --global https.postBuffer 1048576000
-          USERNAME=firoj071
-          PASSWORD=Firoj123456
-          docker login -u $USERNAME -p $PASSWORD
+          
           GO_VERSION=1.22.1
           wget -q https://storage.googleapis.com/golang/go"${GO_VERSION}".linux-s390x.tar.gz
           chmod ugo+r go"${GO_VERSION}".linux-s390x.tar.gz
@@ -50,7 +48,9 @@ jobs:
           wget https://github.com/bytecodealliance/wasmtime/releases/download/v3.0.1/wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
           tar xf wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
           sudo cp wasmtime-v3.0.1-s390x-linux-c-api/lib/libwasmtime.a /usr/lib
-          
+          USERNAME=firoj071
+          PASSWORD=Firoj123456
+          docker login -u $USERNAME -p $PASSWORD
           # Build toolchain image
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/golang-wasmtime.Dockerfile
           sudo docker build -t golang-wasmtime:1.22.1-bullseye -f ./golang-wasmtime.Dockerfile .
