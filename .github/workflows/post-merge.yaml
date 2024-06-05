@@ -48,8 +48,8 @@ jobs:
           wget https://github.com/bytecodealliance/wasmtime/releases/download/v3.0.1/wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
           tar xf wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
           sudo cp wasmtime-v3.0.1-s390x-linux-c-api/lib/libwasmtime.a /usr/lib
-          USERNAME=firoj071
-          PASSWORD=Firoj123456
+          USERNAME=vemef
+          PASSWORD=Vemef12345
           docker login -u $USERNAME -p $PASSWORD
           # Build toolchain image
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/golang-wasmtime.Dockerfile
