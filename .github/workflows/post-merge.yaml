@@ -44,6 +44,7 @@ jobs:
           sudo ln -sf /usr/local/go/bin/gofmt /usr/bin/
           sudo ln -sf /usr/bin/gcc /usr/bin/s390x-linux-gnu-gcc  # Rhel and Sles only
           go version
+          cd $HOME
           mkdir golang-wasmtime && cd golang-wasmtime
           wget https://github.com/bytecodealliance/wasmtime/releases/download/v3.0.1/wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
           tar xf wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
