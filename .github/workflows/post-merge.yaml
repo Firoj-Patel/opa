@@ -21,6 +21,7 @@ jobs:
           sudo apt-get install -y curl vim wget git
           sudo apt-get update
           sudo apt-get install -y gcc git make python3 python3-pip tar wget
+          cd $HOME
           curl -fsSL https://get.docker.com -o get-docker.sh
           sudo sh get-docker.sh
           sudo dockerd &
@@ -28,6 +29,7 @@ jobs:
           
           sudo chmod ugo+rw /var/run/docker.sock
           sudo usermod -aG docker $USER && newgrp docker
+          cd $SOURCE_ROOT
           # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
           AUTHOR=wasm-updater
           git config user.name ${AUTHOR}
