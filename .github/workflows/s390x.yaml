@@ -33,7 +33,7 @@ jobs:
           docker login -u $USERNAME -p $PASSWORD
           sleep 30
           docker pull golang:1.22.1-bullseye
-          docker pull golang-wasmtime:1.22.4-bullseye
+          # docker pull golang-wasmtime:1.22.4-bullseye
           cd $SOURCE_ROOT
           # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
           AUTHOR=wasm-updater
@@ -60,7 +60,7 @@ jobs:
           # Build toolchain image
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/golang-wasmtime.Dockerfile
           
-          sudo docker build -t golang-wasmtime:1.22.1-bullseye -f ./golang-wasmtime.Dockerfile .
+          sudo docker build -t golang-wasmtime:1.22.4-bullseye -f ./golang-wasmtime.Dockerfile .
           cd $HOME
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/opa.diff
           cd $SOURCE_ROOT
