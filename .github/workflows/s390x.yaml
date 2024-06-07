@@ -1,0 +1,141 @@
+name: Post Merge
+
+on:
+  workflow_dispatch: {}   # Allow for manual triggers
+
+jobs:
+  generate:
+    name: Sync Generated Code and Docs
+    runs-on: self-hosted
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Generate
+        shell: bash
+        run: |
+          # Commit any changes and push as needed.
+          SOURCE_ROOT="$(pwd)"
+          echo "$SOURCE_ROOT"
+          sudo apt-get update
+          sudo apt-get install -y curl vim wget git
+          sudo apt-get update
+          sudo apt-get install -y gcc git make python3 python3-pip tar wget
+          cd $HOME
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          sudo dockerd &
+          sleep 30
+          sudo chmod ugo+rw /var/run/docker.sock
+          sudo usermod -aG docker $USER && newgrp docker
+          USERNAME=vemef
+          PASSWORD=Vemef12345
+          docker login -u $USERNAME -p $PASSWORD
+          sleep 30
+          docker pull golang:1.22.1-bullseye
+          cd $SOURCE_ROOT
+          # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
+          AUTHOR=wasm-updater
+          git config user.name ${AUTHOR}
+          git config user.email ${AUTHOR}@github.com
+          git config --global http.postBuffer 1048576000
+          git config --global https.postBuffer 1048576000
+          cd $HOME
+          GO_VERSION=1.22.1
+          wget -q https://storage.googleapis.com/golang/go"${GO_VERSION}".linux-s390x.tar.gz
+          chmod ugo+r go"${GO_VERSION}".linux-s390x.tar.gz
+          sudo rm -rf /usr/local/go /usr/bin/go
+          sudo tar -C /usr/local -xzf go"${GO_VERSION}".linux-s390x.tar.gz
+          sudo ln -sf /usr/local/go/bin/go /usr/bin/
+          sudo ln -sf /usr/local/go/bin/gofmt /usr/bin/
+          sudo ln -sf /usr/bin/gcc /usr/bin/s390x-linux-gnu-gcc  # Rhel and Sles only
+          go version
+          cd $HOME
+          mkdir golang-wasmtime && cd golang-wasmtime
+          wget https://github.com/bytecodealliance/wasmtime/releases/download/v3.0.1/wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
+          tar xf wasmtime-v3.0.1-s390x-linux-c-api.tar.xz
+          sudo cp wasmtime-v3.0.1-s390x-linux-c-api/lib/libwasmtime.a /usr/lib
+          
+          # Build toolchain image
+          wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/golang-wasmtime.Dockerfile
+          
+          sudo docker build -t golang-wasmtime:1.22.1-bullseye -f ./golang-wasmtime.Dockerfile .
+          cd $HOME
+          wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/opa.diff
+          cd $SOURCE_ROOT
+          git apply $HOME/opa.diff
+
+  code-coverage:
+    name: Update Go Test Coverage
+    runs-on: self-hosted
+    needs: generate
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+      - name: Unit Test Golang
+        run: make ci-go-test-coverage
+        timeout-minutes: 30
+
+  release-build:
+    name: Release Build 
+    runs-on: self-hosted
+    needs: generate
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Build Linux s390x
+        run: make ci-go-ci-build-linux
+
+    
+
+  deploy-edge:
+    name: Push Edge Release
+    runs-on: self-hosted
+    needs: [release-build]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Test
+        run: make ci-release-test
+        timeout-minutes: 60
+
+      - name: Download release binaries
+        uses: actions/download-artifact@v4
+        with:
+          pattern: binaries-*
+          merge-multiple: true
+          path: _release
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Deploy OPA Edge
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
+          S3_RELEASE_BUCKET: ${{ secrets.S3_RELEASE_BUCKET }}
+        # Only run if required secrets are provided
+        if: ${{ env.S3_RELEASE_BUCKET && env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY && env.DOCKER_USER && env.DOCKER_PASSWORD }}
+        run: make deploy-ci
+
+  deploy-wasm-builder:
+    name: Deploy WASM Builder
+    runs-on: self-hosted
+    needs: generate
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Build and Push opa-wasm-builder
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_WASM_BUILDER_IMAGE: ${{ secrets.DOCKER_WASM_BUILDER_IMAGE }}
+        # Only run if required secrets are provided
+        if: ${{ env.DOCKER_USER && env.DOCKER_PASSWORD }}
+        run: make push-wasm-builder-image
