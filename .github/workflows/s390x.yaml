@@ -90,7 +90,8 @@ jobs:
           git apply $HOME/opa.diff
           git diff
           make ci-go-ci-build-linux
-
+          make image-s390x
+          make test
     
 
   deploy-edge:
