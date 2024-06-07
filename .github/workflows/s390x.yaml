@@ -33,6 +33,7 @@ jobs:
           docker login -u $USERNAME -p $PASSWORD
           sleep 30
           docker pull golang:1.22.1-bullseye
+          docker pull golang-wasmtime:1.22.4-bullseye
           cd $SOURCE_ROOT
           # See https://github.com/actions/checkout#push-a-commit-using-the-built-in-token
           AUTHOR=wasm-updater
@@ -68,7 +69,7 @@ jobs:
   code-coverage:
     name: Update Go Test Coverage
     runs-on: self-hosted
-    needs: generate
+    needs: [release-build]
     steps:
       - name: Check out code
         uses: actions/checkout@v4
