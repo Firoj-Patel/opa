@@ -123,19 +123,3 @@ jobs:
         if: ${{ env.S3_RELEASE_BUCKET && env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY && env.DOCKER_USER && env.DOCKER_PASSWORD }}
         run: make deploy-ci
 
-  deploy-wasm-builder:
-    name: Deploy WASM Builder
-    runs-on: self-hosted
-    needs: generate
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Build and Push opa-wasm-builder
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          DOCKER_WASM_BUILDER_IMAGE: ${{ secrets.DOCKER_WASM_BUILDER_IMAGE }}
-        # Only run if required secrets are provided
-        if: ${{ env.DOCKER_USER && env.DOCKER_PASSWORD }}
-        run: make push-wasm-builder-image
