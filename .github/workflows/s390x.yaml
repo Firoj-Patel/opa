@@ -1,4 +1,4 @@
-name: Post Merge
+name: s390x
 
 on:
   workflow_dispatch: {}   # Allow for manual triggers
