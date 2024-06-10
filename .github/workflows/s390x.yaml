@@ -64,12 +64,11 @@ jobs:
           cd $HOME
           wget https://raw.githubusercontent.com/linux-on-ibm-z/scripts/master/OPA/0.63.0/patch/opa.diff
           cd $SOURCE_ROOT
-          
 
   code-coverage:
     name: Update Go Test Coverage
     runs-on: self-hosted
-    needs: [release-build]
+    needs: generate
     steps:
       - name: Check out code
         uses: actions/checkout@v4
@@ -77,7 +76,7 @@ jobs:
         run: make ci-go-test-coverage
         timeout-minutes: 30
 
-  release-build:
+  Build:
     name: Release Build 
     runs-on: self-hosted
     needs: generate
@@ -90,41 +89,14 @@ jobs:
           git apply $HOME/opa.diff
           git diff
           make ci-go-ci-build-linux
-          make image-s390x
-          make test
-    
 
-  deploy-edge:
-    name: Push Edge Release
+  Test:
+    name: Update Go Test Coverage
     runs-on: self-hosted
     needs: [release-build]
     steps:
-      - name: Check out code
-        uses: actions/checkout@v4
-
-      - name: Test
-        run: make ci-release-test
-        timeout-minutes: 60
-
-      - name: Download release binaries
-        uses: actions/download-artifact@v4
-        with:
-          pattern: binaries-*
-          merge-multiple: true
-          path: _release
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Deploy OPA Edge
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USER }}
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          DOCKER_IMAGE: ${{ secrets.DOCKER_IMAGE }}
-          S3_RELEASE_BUCKET: ${{ secrets.S3_RELEASE_BUCKET }}
-        # Only run if required secrets are provided
-        if: ${{ env.S3_RELEASE_BUCKET && env.AWS_ACCESS_KEY_ID && env.AWS_SECRET_ACCESS_KEY && env.DOCKER_USER && env.DOCKER_PASSWORD }}
-        run: make deploy-ci
+      name: Build Linux s390x
+        run: |
+          make image-s390x
+          make test
 
