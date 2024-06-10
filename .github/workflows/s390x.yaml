@@ -91,11 +91,11 @@ jobs:
           make ci-go-ci-build-linux
 
   Test:
-    name: Update Go Test Coverage
+    name: Test on s390x
     runs-on: self-hosted
-    needs: [release-build]
+    needs: [Build]
     steps:
-      name: Build Linux s390x
+      - name: Build Linux s390x
         run: |
           make image-s390x
           make test
